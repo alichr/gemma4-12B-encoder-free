@@ -14,24 +14,10 @@
 
 ## TL;DR
 
-- The 12B-it checkpoint is the **`gemma4_unified`** architecture (`Gemma4UnifiedForConditionalGeneration`) — **not** the encoder-bearing `gemma4` sibling that ships in the same library. *Study the right one.*
+- The 12B-it checkpoint is the **`gemma4_unified`** architecture (`Gemma4UnifiedForConditionalGeneration`); "encoder-free" is verifiable in its config — the vision/audio configs contain no `num_hidden_layers` and no attention fields.
 - **Encoder-free, verified by parameter count:** the entire image path is **49.9 M** params (0.42%) — a **35.2 M** patch embedder (the actual vision-encoder replacement, matching Google's "~35M") **+ a 14.7 M shared projection** into LM space — and the entire audio path is **2.46 M** params (0.02%). No attention, no convolutional encoder, no Conformer.
 - Images → raw 48×48 pixel patches → `Linear` → soft tokens. Audio → raw 40 ms / 640-sample frames → a **single** `Linear` → soft tokens. Both are scattered into the **same** 48-layer decoder-only LLM.
 - All experiments run on **one** RTX PRO 6000 (~24 GB in bf16), fully reproducible from synthetic inputs (no datasets to download).
-
----
-
-## ⚠️ The two-implementations gotcha
-
-`transformers` ships **two** Gemma 4 model types. They are easy to confuse:
-
-| module | `model_type` | class | vision / audio |
-|---|---|---|---|
-| `gemma4` | `gemma4` | `Gemma4ForConditionalGeneration` | **has** a ViT vision encoder + Conformer audio encoder + MoE |
-| **`gemma4_unified`** | **`gemma4_unified`** | **`Gemma4UnifiedForConditionalGeneration`** | **encoder-free, dense** |
-
-`google/gemma-4-12B-it` is **`gemma4_unified`**. "Encoder-free" is a property of *this* class and
-checkpoint config — the vision/audio configs contain **no** `num_hidden_layers` and **no** attention fields.
 
 ---
 
