@@ -1,0 +1,860 @@
+{
+  "inputs": {
+    "input_ids": {
+      "shape": [
+        1,
+        305
+      ],
+      "dtype": "torch.int64"
+    },
+    "attention_mask": {
+      "shape": [
+        1,
+        305
+      ],
+      "dtype": "torch.int64"
+    },
+    "mm_token_type_ids": {
+      "shape": [
+        1,
+        305
+      ],
+      "dtype": "torch.int64"
+    },
+    "pixel_values": {
+      "shape": [
+        1,
+        280,
+        6912
+      ],
+      "dtype": "torch.float32"
+    },
+    "image_position_ids": {
+      "shape": [
+        1,
+        280,
+        2
+      ],
+      "dtype": "torch.int64"
+    },
+    "input_features": {
+      "shape": [
+        1,
+        25,
+        640
+      ],
+      "dtype": "torch.float32"
+    },
+    "input_features_mask": {
+      "shape": [
+        1,
+        25
+      ],
+      "dtype": "torch.bool"
+    }
+  },
+  "token_type_counts": {
+    "total": 305,
+    "text": 24,
+    "image_soft_tokens": 256,
+    "audio_soft_tokens": 25
+  },
+  "vision_path": {
+    "model.embed_vision.patch_ln1": {
+      "in": [
+        {
+          "shape": [
+            1,
+            280,
+            6912
+          ],
+          "dtype": "torch.bfloat16"
+        }
+      ],
+      "out": {
+        "shape": [
+          1,
+          280,
+          6912
+        ],
+        "dtype": "torch.bfloat16"
+      }
+    },
+    "model.embed_vision.patch_dense": {
+      "in": [
+        {
+          "shape": [
+            1,
+            280,
+            6912
+          ],
+          "dtype": "torch.bfloat16"
+        }
+      ],
+      "out": {
+        "shape": [
+          1,
+          280,
+          3840
+        ],
+        "dtype": "torch.bfloat16"
+      }
+    },
+    "model.embed_vision.patch_ln2": {
+      "in": [
+        {
+          "shape": [
+            1,
+            280,
+            3840
+          ],
+          "dtype": "torch.bfloat16"
+        }
+      ],
+      "out": {
+        "shape": [
+          1,
+          280,
+          3840
+        ],
+        "dtype": "torch.bfloat16"
+      }
+    },
+    "model.embed_vision.pos_norm": {
+      "in": [
+        {
+          "shape": [
+            1,
+            280,
+            3840
+          ],
+          "dtype": "torch.bfloat16"
+        }
+      ],
+      "out": {
+        "shape": [
+          1,
+          280,
+          3840
+        ],
+        "dtype": "torch.bfloat16"
+      }
+    },
+    "model.embed_vision.multimodal_embedder.embedding_pre_projection_norm": {
+      "in": [
+        {
+          "shape": [
+            1,
+            280,
+            3840
+          ],
+          "dtype": "torch.bfloat16"
+        }
+      ],
+      "out": {
+        "shape": [
+          1,
+          280,
+          3840
+        ],
+        "dtype": "torch.bfloat16"
+      }
+    },
+    "model.embed_vision.multimodal_embedder.embedding_projection": {
+      "in": [
+        {
+          "shape": [
+            1,
+            280,
+            3840
+          ],
+          "dtype": "torch.bfloat16"
+        }
+      ],
+      "out": {
+        "shape": [
+          1,
+          280,
+          3840
+        ],
+        "dtype": "torch.bfloat16"
+      }
+    },
+    "model.embed_vision": {
+      "in": [
+        {
+          "shape": [
+            1,
+            280,
+            6912
+          ],
+          "dtype": "torch.float32"
+        },
+        {
+          "shape": [
+            1,
+            280,
+            2
+          ],
+          "dtype": "torch.int64"
+        }
+      ],
+      "out": {
+        "shape": [
+          1,
+          280,
+          3840
+        ],
+        "dtype": "torch.bfloat16"
+      }
+    }
+  },
+  "audio_path": {
+    "model.embed_audio": {
+      "in": [],
+      "out": {
+        "shape": [
+          1,
+          25,
+          3840
+        ],
+        "dtype": "torch.bfloat16"
+      }
+    },
+    "model.embed_audio.embedding_pre_projection_norm": {
+      "in": [
+        {
+          "shape": [
+            1,
+            25,
+            640
+          ],
+          "dtype": "torch.bfloat16"
+        }
+      ],
+      "out": {
+        "shape": [
+          1,
+          25,
+          640
+        ],
+        "dtype": "torch.bfloat16"
+      }
+    },
+    "model.embed_audio.embedding_projection": {
+      "in": [
+        {
+          "shape": [
+            1,
+            25,
+            640
+          ],
+          "dtype": "torch.bfloat16"
+        }
+      ],
+      "out": {
+        "shape": [
+          1,
+          25,
+          3840
+        ],
+        "dtype": "torch.bfloat16"
+      }
+    }
+  },
+  "hidden_states_per_layer": [
+    {
+      "index": 0,
+      "tag": "embeddings",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.02618236280977726,
+      "std": 2.304229974746704,
+      "absmax": 256.0
+    },
+    {
+      "index": 1,
+      "tag": "layer  0 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.00873890332877636,
+      "std": 1.5008044242858887,
+      "absmax": 27.0
+    },
+    {
+      "index": 2,
+      "tag": "layer  1 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.02237231656908989,
+      "std": 1.409245491027832,
+      "absmax": 38.75
+    },
+    {
+      "index": 3,
+      "tag": "layer  2 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.035987574607133865,
+      "std": 1.8945037126541138,
+      "absmax": 64.5
+    },
+    {
+      "index": 4,
+      "tag": "layer  3 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.019572831690311432,
+      "std": 1.6666278839111328,
+      "absmax": 65.5
+    },
+    {
+      "index": 5,
+      "tag": "layer  4 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": 0.007343938574194908,
+      "std": 1.551059365272522,
+      "absmax": 65.5
+    },
+    {
+      "index": 6,
+      "tag": "layer  5 [full_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.0063355304300785065,
+      "std": 1.1339515447616577,
+      "absmax": 54.0
+    },
+    {
+      "index": 7,
+      "tag": "layer  6 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.026050779968500137,
+      "std": 1.6533324718475342,
+      "absmax": 84.5
+    },
+    {
+      "index": 8,
+      "tag": "layer  7 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.007130347192287445,
+      "std": 1.5441298484802246,
+      "absmax": 61.25
+    },
+    {
+      "index": 9,
+      "tag": "layer  8 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": 0.0011304074432700872,
+      "std": 1.0583642721176147,
+      "absmax": 25.625
+    },
+    {
+      "index": 10,
+      "tag": "layer  9 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.0010223403805866838,
+      "std": 0.5152413845062256,
+      "absmax": 13.1875
+    },
+    {
+      "index": 11,
+      "tag": "layer 10 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.00024490378564223647,
+      "std": 0.553845226764679,
+      "absmax": 8.8125
+    },
+    {
+      "index": 12,
+      "tag": "layer 11 [full_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": 0.0013980967923998833,
+      "std": 0.7563655376434326,
+      "absmax": 22.25
+    },
+    {
+      "index": 13,
+      "tag": "layer 12 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.01473538763821125,
+      "std": 1.0005570650100708,
+      "absmax": 70.5
+    },
+    {
+      "index": 14,
+      "tag": "layer 13 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.02772042714059353,
+      "std": 1.7892611026763916,
+      "absmax": 123.5
+    },
+    {
+      "index": 15,
+      "tag": "layer 14 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.0356399267911911,
+      "std": 2.3914458751678467,
+      "absmax": 162.0
+    },
+    {
+      "index": 16,
+      "tag": "layer 15 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.04476229101419449,
+      "std": 2.974057197570801,
+      "absmax": 199.0
+    },
+    {
+      "index": 17,
+      "tag": "layer 16 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.05106819048523903,
+      "std": 3.3272621631622314,
+      "absmax": 230.0
+    },
+    {
+      "index": 18,
+      "tag": "layer 17 [full_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.03220336511731148,
+      "std": 2.4851505756378174,
+      "absmax": 201.0
+    },
+    {
+      "index": 19,
+      "tag": "layer 18 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.028879769146442413,
+      "std": 2.361844539642334,
+      "absmax": 202.0
+    },
+    {
+      "index": 20,
+      "tag": "layer 19 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.030188199132680893,
+      "std": 2.683246374130249,
+      "absmax": 221.0
+    },
+    {
+      "index": 21,
+      "tag": "layer 20 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.04566936939954758,
+      "std": 3.324843645095825,
+      "absmax": 252.0
+    },
+    {
+      "index": 22,
+      "tag": "layer 21 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.06040392816066742,
+      "std": 3.8881306648254395,
+      "absmax": 280.0
+    },
+    {
+      "index": 23,
+      "tag": "layer 22 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.06603970378637314,
+      "std": 4.221076488494873,
+      "absmax": 296.0
+    },
+    {
+      "index": 24,
+      "tag": "layer 23 [full_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.052564386278390884,
+      "std": 3.647756338119507,
+      "absmax": 272.0
+    },
+    {
+      "index": 25,
+      "tag": "layer 24 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.05775061249732971,
+      "std": 3.6234188079833984,
+      "absmax": 270.0
+    },
+    {
+      "index": 26,
+      "tag": "layer 25 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.058131471276283264,
+      "std": 3.576791524887085,
+      "absmax": 266.0
+    },
+    {
+      "index": 27,
+      "tag": "layer 26 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.05973212793469429,
+      "std": 3.4671378135681152,
+      "absmax": 260.0
+    },
+    {
+      "index": 28,
+      "tag": "layer 27 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.05810396373271942,
+      "std": 3.01220440864563,
+      "absmax": 222.0
+    },
+    {
+      "index": 29,
+      "tag": "layer 28 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.06060520187020302,
+      "std": 2.7499635219573975,
+      "absmax": 192.0
+    },
+    {
+      "index": 30,
+      "tag": "layer 29 [full_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.038076333701610565,
+      "std": 1.8082982301712036,
+      "absmax": 114.5
+    },
+    {
+      "index": 31,
+      "tag": "layer 30 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.022917410358786583,
+      "std": 1.4961320161819458,
+      "absmax": 101.0
+    },
+    {
+      "index": 32,
+      "tag": "layer 31 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.015563451685011387,
+      "std": 1.3615198135375977,
+      "absmax": 125.0
+    },
+    {
+      "index": 33,
+      "tag": "layer 32 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.02240755781531334,
+      "std": 1.6555278301239014,
+      "absmax": 165.0
+    },
+    {
+      "index": 34,
+      "tag": "layer 33 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.029505399987101555,
+      "std": 2.063936710357666,
+      "absmax": 204.0
+    },
+    {
+      "index": 35,
+      "tag": "layer 34 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.03801490366458893,
+      "std": 2.2188563346862793,
+      "absmax": 220.0
+    },
+    {
+      "index": 36,
+      "tag": "layer 35 [full_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.021754387766122818,
+      "std": 1.7806639671325684,
+      "absmax": 149.0
+    },
+    {
+      "index": 37,
+      "tag": "layer 36 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.015633180737495422,
+      "std": 1.6832448244094849,
+      "absmax": 137.0
+    },
+    {
+      "index": 38,
+      "tag": "layer 37 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.015237472020089626,
+      "std": 1.8405534029006958,
+      "absmax": 163.0
+    },
+    {
+      "index": 39,
+      "tag": "layer 38 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.025070946663618088,
+      "std": 2.1990063190460205,
+      "absmax": 197.0
+    },
+    {
+      "index": 40,
+      "tag": "layer 39 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.02645079232752323,
+      "std": 2.046703338623047,
+      "absmax": 174.0
+    },
+    {
+      "index": 41,
+      "tag": "layer 40 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.010145128704607487,
+      "std": 1.581705093383789,
+      "absmax": 115.5
+    },
+    {
+      "index": 42,
+      "tag": "layer 41 [full_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.0056868260726332664,
+      "std": 1.4440042972564697,
+      "absmax": 100.0
+    },
+    {
+      "index": 43,
+      "tag": "layer 42 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.010689476504921913,
+      "std": 1.4458140134811401,
+      "absmax": 108.5
+    },
+    {
+      "index": 44,
+      "tag": "layer 43 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.01729877106845379,
+      "std": 1.381103515625,
+      "absmax": 105.5
+    },
+    {
+      "index": 45,
+      "tag": "layer 44 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.01746176742017269,
+      "std": 1.4447630643844604,
+      "absmax": 118.0
+    },
+    {
+      "index": 46,
+      "tag": "layer 45 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.009408864192664623,
+      "std": 1.277808427810669,
+      "absmax": 87.5
+    },
+    {
+      "index": 47,
+      "tag": "layer 46 [sliding_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": 0.00862162560224533,
+      "std": 1.1448898315429688,
+      "absmax": 50.0
+    },
+    {
+      "index": 48,
+      "tag": "layer 47 [full_attention]",
+      "shape": [
+        1,
+        305,
+        3840
+      ],
+      "mean": -0.07299699634313583,
+      "std": 3.249324321746826,
+      "absmax": 79.0
+    }
+  ],
+  "logits_shape": [
+    1,
+    305,
+    262144
+  ]
+}
