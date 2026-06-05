@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gemma 4 12B · Encoder-Free Multimodal Architecture</title>
+<meta name="description" content="A local study of google/gemma-4-12B-it — how an encoder-free model turns raw pixels and waveforms into tokens for a single 48-layer LLM.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,500;1,9..144,900&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0b1111; --ink-2:#0f1819; --panel:#121d1e; --panel-2:#16201f;
+    --line:#1f3132; --line-2:#28403f;
+    --paper:#f4efe6; --muted:#9fb3b0; --faint:#6b8582;
+    --teal:#2a9d8f; --teal-bright:#46c3b2; --orange:#e76f51; --navy:#2b5566; --gold:#e9c46a;
+    --maxw:1180px;
+    --serif:"Fraunces",Georgia,serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace; --sans:"IBM Plex Sans",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--ink); color:var(--paper); font-family:var(--sans);
+    line-height:1.6; -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  }
+  /* layered atmosphere: ink wash + plot grid + grain */
+  body::before{
+    content:""; position:fixed; inset:0; z-index:-2;
+    background:
+      radial-gradient(1100px 600px at 78% -8%, rgba(42,157,143,.16), transparent 60%),
+      radial-gradient(900px 520px at 8% 8%, rgba(231,111,81,.10), transparent 55%),
+      linear-gradient(160deg,#0b1111,#0f1819 55%,#0a1011);
+  }
+  body::after{
+    content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; opacity:.5;
+    background-image:
+      linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+    background-size:54px 54px;
+    -webkit-mask-image:radial-gradient(circle at 50% 20%, #000 30%, transparent 85%);
+            mask-image:radial-gradient(circle at 50% 20%, #000 30%, transparent 85%);
+  }
+  ::selection{background:var(--orange); color:#1a0e09}
+  a{color:inherit}
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 28px}
+
+  /* ---- top nav ---- */
+  nav{position:sticky; top:0; z-index:50; backdrop-filter:blur(10px);
+    background:linear-gradient(180deg, rgba(11,17,17,.92), rgba(11,17,17,.55));
+    border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex; align-items:center; justify-content:space-between; height:60px}
+  .brand{font-family:var(--mono); font-size:13px; letter-spacing:3px; color:var(--teal-bright)}
+  .brand b{color:var(--paper); font-weight:600}
+  .navlinks{display:flex; gap:26px; font-family:var(--mono); font-size:12.5px; letter-spacing:1px}
+  .navlinks a{color:var(--muted); text-decoration:none; transition:color .2s; position:relative}
+  .navlinks a:hover{color:var(--paper)}
+  .navlinks a::after{content:""; position:absolute; left:0; bottom:-6px; width:0; height:2px; background:var(--orange); transition:width .25s}
+  .navlinks a:hover::after{width:100%}
+  @media(max-width:720px){.navlinks{display:none}}
+
+  /* ---- hero ---- */
+  header{padding:92px 0 60px}
+  .eyebrow{font-family:var(--mono); font-size:13px; letter-spacing:6px; color:var(--teal-bright);
+    display:inline-flex; align-items:center; gap:14px}
+  .eyebrow::before{content:""; width:46px; height:2px; background:linear-gradient(90deg,var(--teal),var(--orange))}
+  h1{font-family:var(--serif); font-weight:900; font-size:clamp(48px,8.5vw,108px); line-height:.96;
+    letter-spacing:-.02em; margin:26px 0 8px}
+  h1 .it{display:block; font-style:italic; font-weight:900; color:var(--orange)}
+  .lede{max-width:660px; font-size:clamp(16px,2vw,20px); color:var(--muted); margin-top:22px}
+  .lede b{color:var(--paper); font-weight:600}
+  .cta{display:flex; gap:14px; margin-top:34px; flex-wrap:wrap}
+  .btn{font-family:var(--mono); font-size:13px; letter-spacing:1px; text-decoration:none;
+    padding:13px 22px; border:1px solid var(--line-2); border-radius:2px; color:var(--paper);
+    display:inline-flex; align-items:center; gap:9px; transition:.22s; background:rgba(255,255,255,.02)}
+  .btn:hover{transform:translateY(-2px); border-color:var(--teal)}
+  .btn.solid{background:var(--orange); border-color:var(--orange); color:#1a0e09; font-weight:600}
+  .btn.solid:hover{background:#ff8266; box-shadow:0 10px 30px -10px rgba(231,111,81,.6)}
+
+  /* ---- stats strip ---- */
+  .stats{display:grid; grid-template-columns:repeat(5,1fr); border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line); margin-top:64px}
+  .stat{padding:26px 18px; border-right:1px solid var(--line)}
+  .stat:last-child{border-right:0}
+  .stat .n{font-family:var(--serif); font-weight:600; font-size:clamp(26px,3.4vw,40px); letter-spacing:-.02em}
+  .stat .n.t{color:var(--teal-bright)} .stat .n.o{color:var(--orange)} .stat .n.g{color:var(--gold)}
+  .stat .l{font-family:var(--mono); font-size:11px; letter-spacing:2px; color:var(--faint); margin-top:8px; text-transform:uppercase}
+  @media(max-width:720px){.stats{grid-template-columns:repeat(2,1fr)} .stat:nth-child(2){border-right:0}}
+
+  /* ---- sections ---- */
+  section{padding:88px 0}
+  .kicker{font-family:var(--mono); font-size:12px; letter-spacing:4px; color:var(--orange); text-transform:uppercase}
+  h2{font-family:var(--serif); font-weight:600; font-size:clamp(30px,4.6vw,52px); letter-spacing:-.02em; margin:14px 0 18px; line-height:1.04}
+  h2 em{font-style:italic; color:var(--teal-bright)}
+  .sub{max-width:680px; color:var(--muted); font-size:17px}
+
+  /* ---- architecture flow ---- */
+  .flow{display:grid; grid-template-columns:1.15fr 64px 1fr; gap:0; align-items:center; margin-top:54px}
+  @media(max-width:880px){.flow{grid-template-columns:1fr; gap:18px}}
+  .rails{display:flex; flex-direction:column; gap:16px}
+  .rail{border:1px solid var(--line-2); border-radius:3px; padding:18px 20px; background:rgba(255,255,255,.018);
+    position:relative; transition:.25s}
+  .rail:hover{transform:translateX(4px); border-color:var(--teal)}
+  .rail .tag{font-family:var(--mono); font-size:11px; letter-spacing:2px; color:var(--faint)}
+  .rail h3{font-family:var(--serif); font-size:22px; font-weight:600; margin:4px 0 6px}
+  .rail .path{font-family:var(--mono); font-size:12.5px; color:var(--muted); line-height:1.7}
+  .rail.img{border-left:3px solid var(--orange)} .rail .acc{color:var(--orange)}
+  .rail.aud{border-left:3px solid var(--gold)} .rail.aud .acc{color:var(--gold)}
+  .rail.txt{border-left:3px solid var(--teal)} .rail.txt .acc{color:var(--teal-bright)}
+  .merge{display:flex; align-items:center; justify-content:center; height:100%}
+  .merge svg{width:64px; height:200px}
+  @media(max-width:880px){.merge{transform:rotate(90deg); height:40px}}
+  .llm{border:1px solid var(--teal); border-radius:4px; padding:30px 26px;
+    background:linear-gradient(160deg, rgba(42,157,143,.10), rgba(43,85,102,.06)); position:relative; overflow:hidden}
+  .llm::after{content:""; position:absolute; inset:0; background:
+    repeating-linear-gradient(0deg, transparent 0 11px, rgba(42,157,143,.06) 11px 12px); pointer-events:none}
+  .llm .tag{font-family:var(--mono); font-size:11px; letter-spacing:3px; color:var(--teal-bright)}
+  .llm h3{font-family:var(--serif); font-size:30px; font-weight:700; margin:8px 0 14px; letter-spacing:-.01em}
+  .llm ul{list-style:none; display:flex; flex-direction:column; gap:9px}
+  .llm li{font-family:var(--mono); font-size:12.5px; color:var(--muted); display:flex; gap:10px}
+  .llm li::before{content:"▸"; color:var(--orange)}
+  .llm li b{color:var(--paper); font-weight:500}
+
+  /* ---- param budget bar ---- */
+  .budget{margin-top:48px}
+  .bar{height:46px; display:flex; border-radius:3px; overflow:hidden; border:1px solid var(--line-2)}
+  .seg{display:flex; align-items:center; padding:0 14px; font-family:var(--mono); font-size:12px; white-space:nowrap; color:#0b1111; font-weight:600}
+  .seg.llm{background:linear-gradient(90deg,var(--teal),#1f7d72); flex:99.56; color:var(--paper)}
+  .seg.vis{background:var(--orange); flex:.42; min-width:8px}
+  .seg.aud{background:var(--gold); flex:.02; min-width:5px}
+  .legend{display:flex; gap:24px; margin-top:16px; flex-wrap:wrap; font-family:var(--mono); font-size:12.5px; color:var(--muted)}
+  .legend span{display:inline-flex; align-items:center; gap:8px}
+  .dot{width:11px; height:11px; border-radius:2px; display:inline-block}
+  .note{margin-top:22px; padding:18px 20px; border-left:3px solid var(--orange); background:rgba(231,111,81,.06);
+    font-size:14.5px; color:var(--muted); border-radius:0 3px 3px 0}
+  .note b{color:var(--paper)}
+
+  /* ---- findings grid ---- */
+  .grid{display:grid; grid-template-columns:repeat(2,1fr); gap:26px; margin-top:50px}
+  @media(max-width:820px){.grid{grid-template-columns:1fr}}
+  .card{border:1px solid var(--line); border-radius:5px; overflow:hidden; background:var(--panel);
+    transition:.28s; display:flex; flex-direction:column}
+  .card:hover{transform:translateY(-5px); border-color:var(--line-2); box-shadow:0 24px 50px -28px rgba(0,0,0,.8)}
+  .card .ph{background:#fff; padding:12px}
+  .card img{width:100%; display:block; border-radius:2px}
+  .card .body{padding:20px 22px 24px}
+  .card .n{font-family:var(--mono); font-size:11px; letter-spacing:2px; color:var(--orange)}
+  .card h3{font-family:var(--serif); font-size:21px; font-weight:600; margin:7px 0 9px; line-height:1.2}
+  .card p{font-size:14px; color:var(--muted)}
+  .card .read{margin-top:14px; font-family:var(--mono); font-size:12px; color:var(--teal-bright);
+    border-top:1px dashed var(--line-2); padding-top:12px}
+
+  /* ---- terminal / reproduce ---- */
+  .term{margin-top:44px; border:1px solid var(--line-2); border-radius:6px; overflow:hidden; background:#0a1010}
+  .term .bar{height:40px; display:flex; align-items:center; gap:8px; padding:0 16px; background:#0e1616; border-bottom:1px solid var(--line); border-radius:0}
+  .term .bar i{width:11px; height:11px; border-radius:50%; display:inline-block}
+  .term .bar .t{font-family:var(--mono); font-size:12px; color:var(--faint); margin-left:12px}
+  .term pre{padding:22px 24px; overflow-x:auto; font-family:var(--mono); font-size:13px; line-height:1.85; color:#cfe3df}
+  .term .c{color:var(--faint)} .term .k{color:var(--teal-bright)} .term .s{color:var(--gold)}
+
+  /* ---- footer ---- */
+  footer{border-top:1px solid var(--line); padding:46px 0 70px; color:var(--faint); font-family:var(--mono); font-size:12.5px}
+  footer .wrap{display:flex; justify-content:space-between; gap:20px; flex-wrap:wrap}
+  footer a{color:var(--muted); text-decoration:none} footer a:hover{color:var(--orange)}
+
+  /* ---- reveal motion ---- */
+  .reveal{opacity:0; transform:translateY(26px); transition:opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1; transform:none}
+  @keyframes fadeUp{from{opacity:0; transform:translateY(28px)} to{opacity:1; transform:none}}
+  .h-anim>*{opacity:0; animation:fadeUp .8s cubic-bezier(.2,.7,.2,1) forwards}
+  .h-anim>*:nth-child(1){animation-delay:.05s}.h-anim>*:nth-child(2){animation-delay:.18s}
+  .h-anim>*:nth-child(3){animation-delay:.31s}.h-anim>*:nth-child(4){animation-delay:.44s}
+  @media(prefers-reduced-motion:reduce){.reveal,.h-anim>*{opacity:1!important;transform:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap">
+  <div class="brand">GEMMA&nbsp;4 · <b>12B-IT</b></div>
+  <div class="navlinks">
+    <a href="#arch">Architecture</a>
+    <a href="#budget">Parameters</a>
+    <a href="#findings">Findings</a>
+    <a href="#run">Reproduce</a>
+    <a href="https://github.com/alichr/gemma4-12B-encoder-free">GitHub ↗</a>
+  </div>
+</div></nav>
+
+<header><div class="wrap h-anim">
+  <div class="eyebrow">ENCODER-FREE · MULTIMODAL · STUDY</div>
+  <h1>Encoder-Free<span class="it">Multimodal Architecture</span></h1>
+  <p class="lede">A local, reproducible study of <b>google/gemma-4-12B-it</b> — a model that
+    ingests images and audio with <b>no vision or audio encoder</b>. Raw 48×48 pixel patches and
+    raw 40 ms waveform frames are projected straight into the embedding space of a single
+    48-layer decoder-only LLM. This repo measures exactly how.</p>
+  <div class="cta">
+    <a class="btn solid" href="https://github.com/alichr/gemma4-12B-encoder-free">▶ View on GitHub</a>
+    <a class="btn" href="https://github.com/alichr/gemma4-12B-encoder-free/blob/main/outputs/Gemma4_EncoderFree_Report.pdf">⤓ Findings report (PDF)</a>
+  </div>
+</div></header>
+
+<div class="wrap reveal">
+  <div class="stats">
+    <div class="stat"><div class="n">11.96B</div><div class="l">Total params</div></div>
+    <div class="stat"><div class="n o">49.9M</div><div class="l">Vision path</div></div>
+    <div class="stat"><div class="n g">2.46M</div><div class="l">Audio path</div></div>
+    <div class="stat"><div class="n t">48</div><div class="l">Decoder layers</div></div>
+    <div class="stat"><div class="n">256K</div><div class="l">Context window</div></div>
+  </div>
+</div>
+
+<!-- ARCHITECTURE -->
+<section id="arch"><div class="wrap reveal">
+  <div class="kicker">The pipeline</div>
+  <h2>Raw signals in. <em>No encoders</em> between.</h2>
+  <p class="sub">Each modality reaches the LLM through a handful of LayerNorm / Linear layers —
+    not a ViT, not a Conformer. Image and audio become “soft tokens” scattered into the same
+    sequence the text tokens live in.</p>
+
+  <div class="flow">
+    <div class="rails">
+      <div class="rail img">
+        <div class="tag">IMAGE · 280 SOFT TOKENS</div>
+        <h3>Vision embedder</h3>
+        <div class="path">48×48 patch (6912 px) → <span class="acc">LN → Linear → LN</span><br>
+          + factorized 2D pos-emb → LN → RMSNorm → Linear(→3840)</div>
+      </div>
+      <div class="rail aud">
+        <div class="tag">AUDIO · 1 TOKEN / 40 ms</div>
+        <h3>Audio embedder</h3>
+        <div class="path">640 raw samples → <span class="acc">RMSNorm → Linear(640→3840)</span><br>
+          one Linear. that's the whole "encoder".</div>
+      </div>
+      <div class="rail txt">
+        <div class="tag">TEXT</div>
+        <h3>Token embedding</h3>
+        <div class="path">tokenizer → <span class="acc">scaled word-emb (×√3840)</span></div>
+      </div>
+    </div>
+
+    <div class="merge">
+      <svg viewBox="0 0 64 200" fill="none" stroke="#2a9d8f" stroke-width="1.5">
+        <path d="M0 34 C40 34 24 100 64 100" opacity=".9"/>
+        <path d="M0 100 L64 100" stroke="#e9c46a" opacity=".9"/>
+        <path d="M0 166 C40 166 24 100 64 100" stroke="#46c3b2" opacity=".9"/>
+        <circle cx="62" cy="100" r="4" fill="#e76f51" stroke="none"/>
+      </svg>
+    </div>
+
+    <div class="llm">
+      <div class="tag">UNIFIED DECODER-ONLY LLM · 11.91B</div>
+      <h3>48 layers · 3840 dim</h3>
+      <ul>
+        <li><b>GQA</b> 16 query / 8 KV heads</li>
+        <li><b>Hybrid attention</b> — 40 sliding (win 1024) + 8 global, 5:1</li>
+        <li><b>p-RoPE</b> on global layers · QK-norm · K=V sharing</li>
+        <li><b>256K</b> context · dense (no MoE)</li>
+        <li>→ lm_head · 262,144 vocab</li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+
+<!-- PARAMETER BUDGET -->
+<section id="budget" style="padding-top:0"><div class="wrap reveal">
+  <div class="kicker">The receipts</div>
+  <h2>The whole non-text path is <em>0.44%</em> of the model.</h2>
+  <p class="sub">If there were encoders, they'd show up in the parameter count. They don't.</p>
+
+  <div class="budget">
+    <div class="bar">
+      <div class="seg llm">language_model — 11.91B (99.56%)</div>
+      <div class="seg vis" title="embed_vision 49.9M"></div>
+      <div class="seg aud" title="embed_audio 2.46M"></div>
+    </div>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--teal)"></i>language_model · 11.91B</span>
+      <span><i class="dot" style="background:var(--orange)"></i>embed_vision · 49.9M</span>
+      <span><i class="dot" style="background:var(--gold)"></i>embed_audio · 2.46M</span>
+    </div>
+    <div class="note"><b>Reconciling “~35M”:</b> the vision path is 49.9M = a <b>35.2M</b> patch
+      embedder (the encoder replacement, matching Google's number) <b>+ 14.7M</b> shared
+      projection into LM space — the same module the audio path uses as its <em>entire</em>
+      pipeline (a 2.46M Linear 640→3840).</div>
+  </div>
+</div></section>
+
+<!-- FINDINGS -->
+<section id="findings"><div class="wrap reveal">
+  <div class="kicker">Representation analysis · all 48 layers</div>
+  <h2>What the layers <em>do</em> to each modality.</h2>
+  <p class="sub">With no encoder, every bit of cross-modal "understanding" is built inside the
+    shared stack. Probing and geometry localize where and how.</p>
+
+  <div class="grid">
+    <div class="card">
+      <div class="ph"><img src="assets/fig_cross_modal.png" alt="Cross-modal alignment across depth"></div>
+      <div class="body"><div class="n">FIG · CROSS-MODAL</div>
+        <h3>A fusion phase-transition at layer ~13</h3>
+        <p>Image / audio / text centroids are near-orthogonal early, then snap to ~0.99 cosine and
+           share a subspace through the mid-stack.</p>
+        <div class="read">↳ modalities aren't aligned at input — the LLM aligns them.</div></div>
+    </div>
+    <div class="card">
+      <div class="ph"><img src="assets/fig_token_norm.png" alt="Per-modality activation norm"></div>
+      <div class="body"><div class="n">FIG · ACTIVATION NORM</div>
+        <h3>A massive-activation peak at layer ~23</h3>
+        <p>Token norms collapse to a minimum near layer 11–12 (the alignment pivot), then spike
+           together — an outlier regime shared across modalities.</p>
+        <div class="read">↳ a mid-stack bottleneck, synchronized across modalities.</div></div>
+    </div>
+    <div class="card">
+      <div class="ph"><img src="assets/fig_linear_probes.png" alt="Linear probe accuracy by layer"></div>
+      <div class="body"><div class="n">FIG · LINEAR PROBES</div>
+        <h3>Color is linear at layer 0; shape needs a few layers</h3>
+        <p>Low-level appearance is decodable straight from the linear patch projection; spatial
+           structure forms over the first decoder layers.</p>
+        <div class="read">↳ the embedder carries appearance; the LLM builds structure.</div></div>
+    </div>
+    <div class="card">
+      <div class="ph"><img src="assets/fig_cka_image.png" alt="Layer-vs-layer CKA of image tokens"></div>
+      <div class="body"><div class="n">FIG · CKA</div>
+        <h3>Input ≠ output representation</h3>
+        <p>Layer-to-layer CKA of image tokens is high only locally; CKA(L0, L48) ≈ 0.07 —
+           representations are transformed end to end.</p>
+        <div class="read">↳ gradual, monotone evolution — no abrupt blocks.</div></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- REPRODUCE -->
+<section id="run" style="padding-top:0"><div class="wrap reveal">
+  <div class="kicker">Reproduce</div>
+  <h2>One GPU. <em>Synthetic inputs.</em> No datasets.</h2>
+  <div class="term">
+    <div class="bar"><i style="background:#e76f51"></i><i style="background:#e9c46a"></i><i style="background:#2a9d8f"></i>
+      <span class="t">bash — gemma4-12B-encoder-free</span></div>
+    <pre><span class="c"># environment (Blackwell sm_120 → cu128 wheels)</span>
+uv venv --python 3.12 .venv
+uv pip install <span class="k">-r</span> requirements-lock.txt
+.venv/bin/hf download <span class="s">google/gemma-4-12B-it</span> <span class="k">--local-dir</span> ./models/gemma-4-12B-it
+
+<span class="c"># run the study</span>
+.venv/bin/python scripts/01_architecture_report.py      <span class="c"># param anatomy (no weights)</span>
+.venv/bin/python scripts/02_modality_trace.py           <span class="c"># per-layer / per-modality shapes</span>
+.venv/bin/python scripts/03_linear_probes.py            <span class="c"># where semantics emerge</span>
+.venv/bin/python scripts/04_representation_geometry.py  <span class="c"># norms · anisotropy · CKA · alignment</span>
+.venv/bin/python scripts/05_build_report.py             <span class="c"># assemble the PDF</span></pre>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <div>MODEL · <a href="https://huggingface.co/google/gemma-4-12B-it">google/gemma-4-12B-it</a> · APACHE-2.0</div>
+  <div>INDEPENDENT RESEARCH TOOLING · <a href="https://github.com/alichr/gemma4-12B-encoder-free">github.com/alichr/gemma4-12B-encoder-free</a></div>
+</div></footer>
+
+<script>
+  const io = new IntersectionObserver((es)=>{
+    es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+  },{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
