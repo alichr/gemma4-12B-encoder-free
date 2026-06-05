@@ -1,28 +1,11 @@
-<p align="center">
-  <img src="assets/banner.svg" alt="Gemma 4 12B — Encoder-Free Multimodal Architecture" width="100%">
-</p>
+# Gemma 4 12B — Encoder-Free Multimodal Architecture Study
+
+> A local, reproducible toolkit for understanding **how `google/gemma-4-12B-it` processes
+> text, images, and audio *without any vision or audio encoder*** — built for a CVPR-track
+> research project on encoder-free multimodal models.
 
 <p align="center">
-  <img alt="model" src="https://img.shields.io/badge/model-gemma--4--12B--it-2a9d8f?style=flat-square">
-  <img alt="design" src="https://img.shields.io/badge/architecture-encoder--free-e76f51?style=flat-square">
-  <img alt="params" src="https://img.shields.io/badge/params-11.96B-264653?style=flat-square">
-  <img alt="license" src="https://img.shields.io/badge/license-Apache--2.0-e9c46a?style=flat-square">
-  <img alt="torch" src="https://img.shields.io/badge/PyTorch-2.11%20%2B%20CUDA%2012.8-2b5566?style=flat-square">
-</p>
-
-<p align="center">
-  <b>A local, reproducible study of how <code>google/gemma-4-12B-it</code> turns raw pixels &amp;
-  waveforms into tokens for a single 48-layer LLM — with <em>no vision or audio encoder</em>.</b>
-</p>
-
-<p align="center">
-  <a href="https://alichr.github.io/gemma4-12B-encoder-free/">🌐&nbsp;Project&nbsp;page</a> &nbsp;·&nbsp;
-  <a href="outputs/Gemma4_EncoderFree_Report.pdf">📄&nbsp;Findings&nbsp;report&nbsp;(PDF)</a> &nbsp;·&nbsp;
-  <a href="#run">⚡&nbsp;Reproduce</a>
-</p>
-
-<p align="center">
-  <img src="outputs/figures/fig_cross_modal.png" width="72%"><br>
+  <img src="outputs/figures/fig_cross_modal.png" width="70%"><br>
   <em>Headline finding: image / audio / text tokens start in near-orthogonal subspaces,
   then snap into a shared representation around layer ~13.</em>
 </p>
